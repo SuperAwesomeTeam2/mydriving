@@ -14,10 +14,10 @@ on:
     paths:
       - apis/user-java/**
       - .github/workflows/user-java.yml
-  pull_request:
-    branches: [ main ]
-    paths:
-      - apis/user-java/**
+  # pull_request:
+  #   branches: [ main ]
+  #   paths:
+  #     - apis/user-java/**
 
 jobs:
   build_and_test:
@@ -123,6 +123,30 @@ jobs:
           Job -           `${{ github.job }}`
           status -        `${{ job.status }}`
 
+  # route_traffic_one_percent:
+  #   needs: deploy_staging
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   steps:
+  #   - name: Azure Authentication
+  #     uses: azure/login@v1
+  #     with:
+  #       creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #   - name: Route Traffic Percentage
+  #     run: |
+  #       az webapp traffic-routing set --distribution staging=1 --name ${{ env.WEBAPP_NAME }} --resource-group ${{ env.RG }}
+
+  # validate_one_percent:
+  #   needs: route_traffic_one_percent
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   steps:
+  #   - name: 
+
   validate_staging:
     needs: deploy_staging
     runs-on: ubuntu-latest
@@ -163,7 +187,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: apis/user-java
     steps:
     - name: Azure Authentication
       uses: azure/login@v1
@@ -228,7 +251,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: apis/user-java
     steps:
     - name: Azure Authentication
       uses: azure/login@v1
@@ -237,7 +259,7 @@ jobs:
 
     - name: Swap Production to Staging
       run: |
-        az webapp deployment slot swap --name ${{ env.WEBAPP_NAME }} --resource-group ${{ env.RG }} --slot production --target-slot staging
+        az webapp deployment slot swap --name ${{ env.WEBAPP_NAME }} --resource-group ${{ env.RG }} --slot staging --target-slot production
 
     - uses: dacbd/create-issue-action@main
       if: failure()
